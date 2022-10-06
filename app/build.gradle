@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.phicdy.billingsample'
+    namespace 'com.phicdy.billingsample2'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.phicdy.billingsample"
+        applicationId "com.phicdy.billingsample2"
         minSdk 28
         targetSdk 33
         versionCode 1

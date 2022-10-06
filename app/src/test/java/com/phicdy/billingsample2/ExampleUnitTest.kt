@@ -1,4 +1,4 @@
-package com.phicdy.billingsample
+package com.phicdy.billingsample2
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.phicdy.billingsample.ui.theme
+package com.phicdy.billingsample2.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

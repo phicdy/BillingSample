@@ -1,4 +1,4 @@
-package com.phicdy.billingsample
+package com.phicdy.billingsample2
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,7 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.phicdy.billingsample.ui.theme.BillingSampleTheme
+import com.phicdy.billingsample2.ui.theme.BillingSampleTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

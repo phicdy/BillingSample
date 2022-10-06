@@ -1,4 +1,4 @@
-package com.phicdy.billingsample.ui.theme
+package com.phicdy.billingsample2.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
