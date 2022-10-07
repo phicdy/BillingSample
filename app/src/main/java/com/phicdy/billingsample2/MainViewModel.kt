@@ -1,11 +1,16 @@
 package com.phicdy.billingsample2
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class MainViewModel : ViewModel() {
 
-    val state: State<MainState> = mutableStateOf(MainState(listOf()))
+    var state by mutableStateOf(MainState(listOf()))
+        private set
+
+    fun updateSubscriptionList(list: List<String>) {
+        state = MainState(list)
+    }
 }

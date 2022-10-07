@@ -70,8 +70,11 @@ class MainActivity : ComponentActivity() {
                                             )
                                         }
 
-                                        // Process the result.
-
+                                        productDetailsResult.productDetailsList?.let { productDetailsList ->
+                                            viewModel.updateSubscriptionList(
+                                                productDetailsList.map { it.toString() }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -98,7 +101,7 @@ fun MainScreen(
         onComposed()
     }
     MainScreen(
-        mainViewModel.state.value,
+        mainViewModel.state,
         onComposed
     )
 }
