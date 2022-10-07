@@ -119,7 +119,11 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        SubscriptionList(state.subscriptionList)
+        if (state.subscriptionList.isEmpty()) {
+            EmptyText()
+        } else {
+            SubscriptionList(state.subscriptionList)
+        }
     }
 }
 
@@ -132,6 +136,11 @@ fun SubscriptionList(subscriptionList: List<String>) {
             Text(text = subscription)
         }
     }
+}
+
+@Composable
+fun EmptyText() {
+    Text(text = "empty")
 }
 
 @Preview(showBackground = true)
