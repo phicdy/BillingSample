@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -71,8 +72,9 @@ class MainActivity : ComponentActivity() {
                                         }
 
                                         productDetailsResult.productDetailsList?.let { productDetailsList ->
-                                            viewModel.updateSubscriptionList(
-                                                productDetailsList.map { it.toString() }
+                                            viewModel.updateState(
+                                                productDetailsList,
+                                                productDetailsResult.billingResult
                                             )
                                         }
                                     }
@@ -120,20 +122,30 @@ fun MainScreen(
         color = MaterialTheme.colors.background
     ) {
         if (state.subscriptionList.isEmpty()) {
-            EmptyText()
+            Column {
+                EmptyText()
+                BillingResult(billingResult = state.billingResult)
+                LoadState(loaded = state.loaded)
+            }
         } else {
-            SubscriptionList(state.subscriptionList)
+            SubscriptionResult(state.subscriptionList, state.billingResult, state.loaded)
         }
     }
 }
 
 @Composable
-fun SubscriptionList(subscriptionList: List<String>) {
+fun SubscriptionResult(subscriptionList: List<String>, billingResult: String, loaded: Boolean) {
     LazyColumn {
         items(
             items = subscriptionList,
             key = { subscription -> subscription }) { subscription ->
             Text(text = subscription)
+        }
+        item {
+            BillingResult(billingResult = billingResult)
+        }
+        item {
+            LoadState(loaded = loaded)
         }
     }
 }
@@ -143,10 +155,25 @@ fun EmptyText() {
     Text(text = "empty")
 }
 
+@Composable
+fun LoadState(loaded: Boolean) {
+    Text(text = if (loaded) "loaded" else "not loaded")
+}
+
+@Composable
+fun BillingResult(billingResult: String) {
+    Text(text = billingResult)
+}
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     BillingSampleTheme {
-        MainScreen(state = MainState(listOf("subscription")))
+        MainScreen(
+            state = MainState(
+                subscriptionList = listOf("subscription"),
+                billingResult = "billing result"
+            )
+        )
     }
 }
