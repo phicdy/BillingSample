@@ -5,7 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -136,15 +138,37 @@ fun MainScreen(
 }
 
 @Composable
-fun SubscriptionResult(subscriptionList: List<String>, billingResult: String, loaded: Boolean) {
+fun SubscriptionResult(
+    subscriptionList: List<ProductDetailsResult>,
+    billingResult: String,
+    loaded: Boolean
+) {
     LazyColumn {
         item {
             Text(text = "Subscription List", modifier = Modifier.padding(top = 8.dp))
         }
         items(
             items = subscriptionList,
-            key = { subscription -> subscription }) { subscription ->
-            Text(text = subscription, modifier = Modifier.padding(top = 8.dp))
+            key = { subscription -> subscription.productId }) { subscription ->
+            Text(text = "Name: ${subscription.name}")
+            Text(text = "Product Type: ${subscription.productType}")
+            Text(text = "Product ID: ${subscription.productId}")
+            Text(text = "Title: ${subscription.title}")
+            Text(text = "oneTimePurchaseOfferDetails")
+            Text(text = "FormattedPrice: ${subscription.oneTimePurchaseOfferDetailsFormattedPrice}")
+            Text(text = "PriceCurrencyCode: ${subscription.oneTimePurchaseOfferDetailsPriceCurrencyCode}")
+            Text(text = "PriceAmountMicros: ${subscription.oneTimePurchaseOfferDetailsPriceAmountMicros}")
+            Text(text = "subscriptionOfferDetails First Item")
+            Text(text = "OfferTag: ${subscription.subscriptionOfferDetailsFirstOfferTag}")
+//            Text(text = "OfferToken: ${subscription.subscriptionOfferDetailsFirstOfferToken}")
+            Text(text = "PricingPhases First Item")
+            Text(text = "BillingCycleCount: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingCycleCount}")
+            Text(text = "BillingPeriod: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingPeriod}")
+            Text(text = "FormattedPrice: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseFormattedPrice}")
+            Text(text = "AmountMicros: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhasePriceAmountMicros}")
+            Text(text = "CurrencyCode: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhasePriceCurrencyCode}")
+            Text(text = "RecurrenceMode: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseRecurrenceMode}")
+            Spacer(modifier = Modifier.height(8.dp))
         }
         item {
             BillingResult(billingResult = billingResult)
@@ -177,7 +201,25 @@ fun DefaultPreview() {
     BillingSampleTheme {
         MainScreen(
             state = MainState(
-                subscriptionList = listOf("subscription"),
+                subscriptionList = listOf(
+                    ProductDetailsResult(
+                        name = "test",
+                        productId = "productId",
+                        productType = "proudctType",
+                        title = "title",
+                        oneTimePurchaseOfferDetailsFormattedPrice = "",
+                        oneTimePurchaseOfferDetailsPriceAmountMicros = 0L,
+                        oneTimePurchaseOfferDetailsPriceCurrencyCode = "",
+                        subscriptionOfferDetailsFirstOfferTag = listOf("tag"),
+                        subscriptionOfferDetailsFirstOfferToken = "",
+                        subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingPeriod = "",
+                        subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseFormattedPrice = "",
+                        subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhasePriceAmountMicros = 0L,
+                        subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhasePriceCurrencyCode = "",
+                        subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseRecurrenceMode = 0,
+                        subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingCycleCount = 0,
+                    )
+                ),
                 billingResult = "billing result"
             )
         )
