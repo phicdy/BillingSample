@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -136,10 +138,13 @@ fun MainScreen(
 @Composable
 fun SubscriptionResult(subscriptionList: List<String>, billingResult: String, loaded: Boolean) {
     LazyColumn {
+        item {
+            Text(text = "Subscription List", modifier = Modifier.padding(top = 8.dp))
+        }
         items(
             items = subscriptionList,
             key = { subscription -> subscription }) { subscription ->
-            Text(text = subscription)
+            Text(text = subscription, modifier = Modifier.padding(top = 8.dp))
         }
         item {
             BillingResult(billingResult = billingResult)
@@ -157,11 +162,12 @@ fun EmptyText() {
 
 @Composable
 fun LoadState(loaded: Boolean) {
-    Text(text = if (loaded) "loaded" else "not loaded")
+    Text(text = if (loaded) "loaded" else "not loaded", modifier = Modifier.padding(top = 8.dp))
 }
 
 @Composable
 fun BillingResult(billingResult: String) {
+    Text(text = "Billing Result", modifier = Modifier.padding(top = 8.dp))
     Text(text = billingResult)
 }
 
