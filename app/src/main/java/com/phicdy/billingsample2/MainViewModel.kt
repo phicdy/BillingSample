@@ -13,7 +13,8 @@ class MainViewModel : ViewModel() {
         MainState(
             subscriptionList = listOf(),
             billingResult = "",
-            loaded = false
+            loaded = false,
+            raw = listOf()
         )
     )
         private set
@@ -56,7 +57,8 @@ class MainViewModel : ViewModel() {
                 )
             },
             billingResult = billingResult.toString(),
-            loaded = true
+            loaded = true,
+            raw = productDetailsList
         )
     }
 }

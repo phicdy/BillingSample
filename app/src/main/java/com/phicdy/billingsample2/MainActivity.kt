@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -22,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
@@ -92,7 +96,21 @@ class MainActivity : ComponentActivity() {
                         })
                     },
                     mainViewModel = viewModel
-                )
+                ) { productDetails, selectedOfferToken ->
+                    val productDetailsParamsList = listOf(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(productDetails)
+                            .setOfferToken(selectedOfferToken)
+                            .build()
+                    )
+
+                    val billingFlowParams = BillingFlowParams.newBuilder()
+                        .setProductDetailsParamsList(productDetailsParamsList)
+                        .build()
+
+                    billingClient.launchBillingFlow(this, billingFlowParams)
+
+                }
             }
         }
     }
@@ -102,13 +120,15 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     mainViewModel: MainViewModel,
     onComposed: () -> Unit = {},
+    onPurchaseButtonClicked: (ProductDetails, String) -> Unit = { _, _ -> }
 ) {
     LaunchedEffect(Unit) {
         onComposed()
     }
     MainScreen(
-        mainViewModel.state,
-        onComposed
+        state = mainViewModel.state,
+        onComposed = onComposed,
+        onPurchaseButtonClicked = onPurchaseButtonClicked
     )
 }
 
@@ -116,6 +136,7 @@ fun MainScreen(
 fun MainScreen(
     state: MainState,
     onComposed: () -> Unit = {},
+    onPurchaseButtonClicked: (ProductDetails, String) -> Unit = { _, _ -> }
 ) {
     LaunchedEffect(Unit) {
         onComposed()
@@ -132,7 +153,13 @@ fun MainScreen(
                 LoadState(loaded = state.loaded)
             }
         } else {
-            SubscriptionResult(state.subscriptionList, state.billingResult, state.loaded)
+            SubscriptionResult(
+                subscriptionList = state.subscriptionList,
+                raw = state.raw,
+                billingResult = state.billingResult,
+                loaded = state.loaded,
+                onPurchaseButtonClicked = onPurchaseButtonClicked
+            )
         }
     }
 }
@@ -140,8 +167,10 @@ fun MainScreen(
 @Composable
 fun SubscriptionResult(
     subscriptionList: List<ProductDetailsResult>,
+    raw: List<ProductDetails>,
     billingResult: String,
-    loaded: Boolean
+    loaded: Boolean,
+    onPurchaseButtonClicked: (ProductDetails, String) -> Unit = { _, _ -> }
 ) {
     LazyColumn {
         item {
@@ -169,6 +198,13 @@ fun SubscriptionResult(
             Text(text = "CurrencyCode: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhasePriceCurrencyCode}")
             Text(text = "RecurrenceMode: ${subscription.subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseRecurrenceMode}")
             Spacer(modifier = Modifier.height(8.dp))
+            subscription.subscriptionOfferDetailsFirstOfferToken?.let { token ->
+                PurchaseButton(
+                    productDetails = raw.first { it.productId == subscription.productId },
+                    offerToken = token,
+                    onClicked = onPurchaseButtonClicked
+                )
+            }
         }
         item {
             BillingResult(billingResult = billingResult)
@@ -193,6 +229,23 @@ fun LoadState(loaded: Boolean) {
 fun BillingResult(billingResult: String) {
     Text(text = "Billing Result", modifier = Modifier.padding(top = 8.dp))
     Text(text = billingResult)
+}
+
+@Composable
+fun PurchaseButton(
+    productDetails: ProductDetails,
+    offerToken: String,
+    onClicked: (ProductDetails, String) -> Unit = { _, _ -> }
+) {
+    Button(
+        onClick = { onClicked(productDetails, offerToken) },
+        modifier = Modifier
+            .padding(8.dp)
+            .width(128.dp)
+            .height(32.dp)
+    ) {
+        Text(text = "Purchase")
+    }
 }
 
 @Preview(showBackground = true)
@@ -220,7 +273,8 @@ fun DefaultPreview() {
                         subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingCycleCount = 0,
                     )
                 ),
-                billingResult = "billing result"
+                billingResult = "billing result",
+                raw = listOf()
             )
         )
     }

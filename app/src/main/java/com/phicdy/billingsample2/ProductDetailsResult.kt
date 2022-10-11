@@ -21,5 +21,5 @@ data class ProductDetailsResult(
     val subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhasePriceAmountMicros: Long?,
     val subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingCycleCount: Int?,
     val subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseBillingPeriod: String?,
-    val subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseRecurrenceMode: Int?,
+    val subscriptionOfferDetailsFirstPricingPhasesFirstPricingPhaseRecurrenceMode: Int?
 ): Parcelable
