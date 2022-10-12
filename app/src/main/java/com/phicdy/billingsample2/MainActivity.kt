@@ -27,9 +27,13 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.Purchase.PurchaseState
+import com.android.billingclient.api.PurchasesResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
+import com.android.billingclient.api.queryPurchasesAsync
 import com.phicdy.billingsample2.ui.theme.BillingSampleTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,7 +41,6 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     private val purchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases ->
-            // To be implemented in a later section.
         }
 
     private val billingClient by lazy {
@@ -79,10 +82,18 @@ class MainActivity : ComponentActivity() {
                                             )
                                         }
 
+                                        val purchase = withContext(Dispatchers.IO) {
+                                            val params = QueryPurchasesParams.newBuilder()
+                                                .setProductType(BillingClient.ProductType.SUBS)
+                                                .build()
+                                            billingClient.queryPurchasesAsync(params)
+                                        }
+
                                         productDetailsResult.productDetailsList?.let { productDetailsList ->
                                             viewModel.updateState(
                                                 productDetailsList,
-                                                productDetailsResult.billingResult
+                                                productDetailsResult.billingResult,
+                                                purchase
                                             )
                                         }
                                     }
@@ -146,20 +157,25 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        if (state.subscriptionList.isEmpty()) {
-            Column {
-                EmptyText()
+        Column {
+            if (state.subscriptionList.isEmpty()) {
+                EmptySubscriptionText()
                 BillingResult(billingResult = state.billingResult)
                 LoadState(loaded = state.loaded)
+            } else {
+                SubscriptionResult(
+                    subscriptionList = state.subscriptionList,
+                    raw = state.raw,
+                    billingResult = state.billingResult,
+                    loaded = state.loaded,
+                    onPurchaseButtonClicked = onPurchaseButtonClicked
+                )
             }
-        } else {
-            SubscriptionResult(
-                subscriptionList = state.subscriptionList,
-                raw = state.raw,
-                billingResult = state.billingResult,
-                loaded = state.loaded,
-                onPurchaseButtonClicked = onPurchaseButtonClicked
-            )
+            if (state.purchasesResult == null || state.purchasesResult.purchasesList.isEmpty()) {
+                EmptyPurchaseText()
+            } else {
+                PurchaseBillingResult(purchasesResult = state.purchasesResult)
+            }
         }
     }
 }
@@ -216,8 +232,8 @@ fun SubscriptionResult(
 }
 
 @Composable
-fun EmptyText() {
-    Text(text = "empty")
+fun EmptySubscriptionText() {
+    Text(text = "Subscription is empty")
 }
 
 @Composable
@@ -248,6 +264,54 @@ fun PurchaseButton(
     }
 }
 
+@Composable
+fun EmptyPurchaseText() {
+    Text(text = "Purchase is empty")
+}
+
+@Composable
+fun PurchaseBillingResult(
+    purchasesResult: PurchasesResult,
+) {
+    LazyColumn {
+        item {
+            Text(text = "Purchase Result", modifier = Modifier.padding(top = 8.dp))
+        }
+        items(
+            items = purchasesResult.purchasesList,
+            key = { purchase -> purchase.orderId }) { purchase ->
+            Text(text = "OrderId: ${purchase.orderId}")
+            Text(text = "Account Identifiers: ${purchase.accountIdentifiers}")
+            Text(text = "Developer Payload: ${purchase.developerPayload}")
+            Text(text = "isAcknowledged: ${purchase.isAcknowledged}")
+            Text(text = "isAutoRenewing: ${purchase.isAutoRenewing}")
+            Text(text = "Original Json: ${purchase.originalJson}")
+            Text(text = "Package Name: ${purchase.packageName}")
+            Text(text = "Products: ${purchase.products}")
+            val purchaseStateString = when (purchase.purchaseState) {
+                PurchaseState.PURCHASED -> "PURCHASED "
+                PurchaseState.UNSPECIFIED_STATE -> "UNSPECIFIED_STATE "
+                PurchaseState.PENDING -> "PENDING "
+                else -> "UNKNOWN"
+            }
+            Text(text = "Purchase State: $purchaseStateString")
+            Text(text = "Purchase Time: ${purchase.purchaseTime}")
+            Text(text = "Purchase Token: ${purchase.purchaseToken}")
+            Text(text = "Quantity: ${purchase.quantity}")
+            Text(text = "Signature: ${purchase.signature}")
+        }
+        item {
+            PurchaseBillingResult(billingResult = purchasesResult.billingResult)
+        }
+    }
+}
+
+@Composable
+fun PurchaseBillingResult(billingResult: BillingResult) {
+    Text(text = "Billing Result", modifier = Modifier.padding(top = 8.dp))
+    Text(text = billingResult.toString())
+}
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
@@ -274,7 +338,8 @@ fun DefaultPreview() {
                     )
                 ),
                 billingResult = "billing result",
-                raw = listOf()
+                raw = listOf(),
+                purchasesResult = null
             )
         )
     }

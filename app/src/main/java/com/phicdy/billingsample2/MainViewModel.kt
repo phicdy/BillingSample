@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.PurchasesResult
 
 class MainViewModel : ViewModel() {
 
@@ -14,12 +15,17 @@ class MainViewModel : ViewModel() {
             subscriptionList = listOf(),
             billingResult = "",
             loaded = false,
-            raw = listOf()
+            raw = listOf(),
+            purchasesResult = null
         )
     )
         private set
 
-    fun updateState(productDetailsList: List<ProductDetails>, billingResult: BillingResult) {
+    fun updateState(
+        productDetailsList: List<ProductDetails>,
+        billingResult: BillingResult,
+        purchase: PurchasesResult
+    ) {
         state = MainState(
             subscriptionList = productDetailsList.map { productDetails ->
                 ProductDetailsResult(
@@ -58,7 +64,8 @@ class MainViewModel : ViewModel() {
             },
             billingResult = billingResult.toString(),
             loaded = true,
-            raw = productDetailsList
+            raw = productDetailsList,
+            purchasesResult = purchase
         )
     }
 }
