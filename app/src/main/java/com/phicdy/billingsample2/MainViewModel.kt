@@ -68,4 +68,14 @@ class MainViewModel : ViewModel() {
             purchasesResult = purchase
         )
     }
+
+    fun updateStateToLoading() {
+        state = MainState(
+            subscriptionList = listOf(),
+            billingResult = "",
+            loaded = false,
+            raw = listOf(),
+            purchasesResult = null
+        )
+    }
 }

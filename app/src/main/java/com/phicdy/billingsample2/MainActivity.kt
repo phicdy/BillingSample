@@ -43,6 +43,7 @@ import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.phicdy.billingsample2.ui.theme.BillingSampleTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
@@ -66,6 +67,7 @@ class MainActivity : ComponentActivity() {
             BillingSampleTheme {
                 MainScreen(
                     onResumed = {
+                        viewModel.updateStateToLoading()
                         billingClient.startConnection(object : BillingClientStateListener {
                             override fun onBillingSetupFinished(billingResult: BillingResult) {
                                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
@@ -84,6 +86,7 @@ class MainActivity : ComponentActivity() {
 
                                         // leverage queryProductDetails Kotlin extension function
                                         val productDetailsResult = withContext(Dispatchers.IO) {
+                                            delay(2000)
                                             billingClient.queryProductDetails(
                                                 queryProductDetailsParams
                                             )
