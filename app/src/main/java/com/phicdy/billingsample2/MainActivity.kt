@@ -17,10 +17,17 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -58,7 +65,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BillingSampleTheme {
                 MainScreen(
-                    onComposed = {
+                    onResumed = {
                         billingClient.startConnection(object : BillingClientStateListener {
                             override fun onBillingSetupFinished(billingResult: BillingResult) {
                                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
@@ -130,15 +137,29 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
-    onComposed: () -> Unit = {},
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onResumed: () -> Unit = {},
     onPurchaseButtonClicked: (ProductDetails, String) -> Unit = { _, _ -> }
 ) {
-    LaunchedEffect(Unit) {
-        onComposed()
+    val currentOnResumed by rememberUpdatedState(onResumed)
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                currentOnResumed()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
+
     MainScreen(
         state = mainViewModel.state,
-        onComposed = onComposed,
+        onComposed = onResumed,
         onPurchaseButtonClicked = onPurchaseButtonClicked
     )
 }
