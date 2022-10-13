@@ -29,16 +29,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.Purchase.PurchaseState
 import com.android.billingclient.api.PurchasesResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.phicdy.billingsample2.ui.theme.BillingSampleTheme
@@ -49,7 +52,25 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     private val purchasesUpdatedListener =
         PurchasesUpdatedListener { billingResult, purchases ->
+            if (purchases == null) return@PurchasesUpdatedListener
+            handlePurchases(purchases = purchases)
         }
+
+    private fun handlePurchases(purchases: List<Purchase>) {
+        for (purchase in purchases) {
+            if (purchase.purchaseState == PurchaseState.PURCHASED) {
+                if (!purchase.isAcknowledged) {
+                    val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                        .setPurchaseToken(purchase.purchaseToken)
+                    lifecycleScope.launchWhenStarted {
+                        val ackPurchaseResult = withContext(Dispatchers.IO) {
+                            billingClient.acknowledgePurchase(acknowledgePurchaseParams.build())
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private val billingClient by lazy {
         BillingClient.newBuilder(applicationContext)
