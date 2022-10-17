@@ -326,13 +326,6 @@ fun PurchaseBillingResult(
             items = purchasesResult.purchasesList,
             key = { purchase -> purchase.orderId }) { purchase ->
             Text(text = "OrderId: ${purchase.orderId}")
-            Text(text = "Account Identifiers: ${purchase.accountIdentifiers}")
-            Text(text = "Developer Payload: ${purchase.developerPayload}")
-            Text(text = "isAcknowledged: ${purchase.isAcknowledged}")
-            Text(text = "isAutoRenewing: ${purchase.isAutoRenewing}")
-            Text(text = "Original Json: ${purchase.originalJson}")
-            Text(text = "Package Name: ${purchase.packageName}")
-            Text(text = "Products: ${purchase.products}")
             val purchaseStateString = when (purchase.purchaseState) {
                 PurchaseState.PURCHASED -> "PURCHASED "
                 PurchaseState.UNSPECIFIED_STATE -> "UNSPECIFIED_STATE "
@@ -340,6 +333,13 @@ fun PurchaseBillingResult(
                 else -> "UNKNOWN"
             }
             Text(text = "Purchase State: $purchaseStateString")
+            Text(text = "Account Identifiers: ${purchase.accountIdentifiers}")
+            Text(text = "Developer Payload: ${purchase.developerPayload}")
+            Text(text = "isAcknowledged: ${purchase.isAcknowledged}")
+            Text(text = "isAutoRenewing: ${purchase.isAutoRenewing}")
+            Text(text = "Original Json: ${purchase.originalJson}")
+            Text(text = "Package Name: ${purchase.packageName}")
+            Text(text = "Products: ${purchase.products}")
             Text(text = "Purchase Time: ${purchase.purchaseTime}")
             Text(text = "Purchase Token: ${purchase.purchaseToken}")
             Text(text = "Quantity: ${purchase.quantity}")
